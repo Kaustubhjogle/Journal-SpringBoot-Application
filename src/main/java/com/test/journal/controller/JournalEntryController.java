@@ -1,42 +1,45 @@
 package com.test.journal.controller;
 
 import com.test.journal.entity.JournalEntry;
+import com.test.journal.service.JournalEntryService;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/journalEntry")
 public class JournalEntryController {
 
-    private Map<Long, JournalEntry> journalEntries = new HashMap();
+    @Autowired
+    JournalEntryService journalEntryService;
 
     @GetMapping
     public List<JournalEntry> getEntries(){
-        return new ArrayList<>(journalEntries.values());
+        return journalEntryService.getAllEntries();
     }
 
     @PostMapping
     public String createEntry(@RequestBody JournalEntry newEntry){
-        journalEntries.put(newEntry.getId(), newEntry);
-        return newEntry.getTitle() + " added";
+        newEntry.setDate(LocalDateTime.now() );
+        journalEntryService.saveEntry(newEntry);
+        return "Entry Added";
     }
 
     @GetMapping("{requestedId}")
-    public JournalEntry getEntryById (@PathVariable Long requestedId){
-        return journalEntries.get(requestedId);
+    public JournalEntry getEntryById (@PathVariable ObjectId requestedId){
+        return journalEntryService.getEntryById(requestedId).orElse(null);
     }
 
     @DeleteMapping("{requestedId}")
-    public JournalEntry deleteEntry(@PathVariable Long requestedId){
-        return journalEntries.remove(requestedId);
+    public boolean deleteEntry(@PathVariable ObjectId requestedId){
+        return journalEntryService.deleteById(requestedId);
     }
 
     @PutMapping("modifyEntry/{requestedId}")
-    public JournalEntry updateEntry(@PathVariable Long requestedId, @RequestBody JournalEntry entry){
-        return journalEntries.put(requestedId, entry);
+    public JournalEntry updateEntry(@PathVariable ObjectId requestedId, @RequestBody JournalEntry entry){
+        return journalEntryService.updateEntry(requestedId, entry);
     }
 }
