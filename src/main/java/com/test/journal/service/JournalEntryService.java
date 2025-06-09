@@ -31,14 +31,4 @@ public class JournalEntryService {
         journalEntryRepository.deleteById(id);
         return true;
     }
-
-    public JournalEntry updateEntry(ObjectId id, JournalEntry newEntry){
-        JournalEntry oldEntry = journalEntryRepository.findById(id).orElse(null);
-        if(oldEntry != null){
-            oldEntry.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : oldEntry.getTitle() );
-            oldEntry.setContent(newEntry.getContent() != null && !newEntry.getContent().equals("") ? newEntry.getContent() : oldEntry.getContent());
-        }
-        journalEntryRepository.save(oldEntry);
-        return oldEntry;
-    }
 }
